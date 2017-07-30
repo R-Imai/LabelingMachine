@@ -63,7 +63,7 @@ class Labeler extends JFrame implements ActionListener, Runnable{
         this.isInput = true;
         this.isPlaying = false;
         this.isFinish = false;
-        this.labelNum = -1;
+        this.labelNum = -10;
         this.logFile = new File("player.log");
 
         if(this.logFile.exists()){
@@ -239,11 +239,11 @@ class Labeler extends JFrame implements ActionListener, Runnable{
         ImageIcon iPlan = new ImageIcon("img/planaria.png");
         this.playButton.setIcon(iPlan);
         this.play(this.pathList[this.fileCnt]);
-        if(this.labelNum != -1){
+        if(this.labelNum != -10){
             this.send(this.outputPath, this.pathList[this.fileCnt], this.labelNum);
             if(!this.isFinish){
                 this.fileName.setText(String.valueOf(this.pathList[this.fileCnt]).replace("databox\\", ""));
-                this.labelNum = -1;
+                this.labelNum = -10;
                 ImageIcon iPlay = new ImageIcon("img/play.png");
                 this.playButton.setIcon(iPlay);
             }
