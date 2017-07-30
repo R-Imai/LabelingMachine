@@ -36,7 +36,10 @@ import javax.sound.sampled.*;
 class Labeler extends JFrame implements ActionListener, Runnable{
     private JButton TButton;
     private JButton FButton;
-    private JButton againButton;
+    private JButton T2Button;
+    private JButton F2Button;
+    private JButton NButton;
+    private JButton playButton;
     private JLabel fileName;
 
     private File[] pathList;
@@ -79,7 +82,7 @@ class Labeler extends JFrame implements ActionListener, Runnable{
         this.playThread = new Thread(this);
 
         this.setTitle(title);
-        this.setBounds(100, 100, 550, 250);
+        this.setBounds(100, 100, 880, 400);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);    //close時の時の処理?
 
         JPanel msg_box = new JPanel();
@@ -88,29 +91,59 @@ class Labeler extends JFrame implements ActionListener, Runnable{
         this.fileName.setText(String.valueOf(this.pathList[this.fileCnt]).replace("databox\\", ""));
         msg_box.add(this.fileName);
 
-        JPanel pan = new JPanel();
+        JPanel playPan = new JPanel();
+        ImageIcon iPlay = new ImageIcon("img/play.png");
+        this.playButton = new JButton(iPlay);
+        playPan.add(this.playButton);
+        this.playButton.addActionListener(this);
+
+
+        JPanel evalPan = new JPanel();
 
         ImageIcon iMinus = new ImageIcon("img/minus.png");
-        ImageIcon iAgain = new ImageIcon("img/again.png");
         ImageIcon iPlus = new ImageIcon("img/plus.png");
-        ImageIcon iPlay = new ImageIcon("./img/play.png");
+        ImageIcon iMinus2 = new ImageIcon("img/minus2.png");
+        ImageIcon iPlus2 = new ImageIcon("img/plus2.png");
+        ImageIcon iZero = new ImageIcon("img/0.png");
+
 
         this.FButton = new JButton(iMinus);
-        this.againButton = new JButton(iPlay);
         this.TButton = new JButton(iPlus);
+        this.NButton = new JButton(iZero);
+        this.F2Button = new JButton(iMinus2);
+        this.T2Button = new JButton(iPlus2);
 
-        pan.add(this.FButton);
-        pan.add(this.againButton);
-        pan.add(this.TButton);
+        evalPan.add(this.F2Button);
+        evalPan.add(this.FButton);
+        evalPan.add(this.NButton);
+        evalPan.add(this.TButton);
+        evalPan.add(this.T2Button);
 
+        this.T2Button.addActionListener(this);
         this.TButton.addActionListener(this);
-        this.againButton.addActionListener(this);
+        this.NButton.addActionListener(this);
         this.FButton.addActionListener(this);
+        this.F2Button.addActionListener(this);
 
-        this.getContentPane().add(msg_box, BorderLayout.CENTER);
-        this.getContentPane().add(pan, BorderLayout.SOUTH);
+        this.getContentPane().add(msg_box, BorderLayout.NORTH);
+        this.getContentPane().add(playPan, BorderLayout.CENTER);
+        this.getContentPane().add(evalPan, BorderLayout.SOUTH);
 
         //this.playThread.start();
+    }
+
+    private void iconReset(){
+        ImageIcon iMinus = new ImageIcon("img/minus.png");
+        ImageIcon iPlus = new ImageIcon("img/plus.png");
+        ImageIcon iMinus2 = new ImageIcon("img/minus2.png");
+        ImageIcon iPlus2 = new ImageIcon("img/plus2.png");
+        ImageIcon iZero = new ImageIcon("img/0.png");
+
+        this.TButton.setIcon(iPlus);
+        this.FButton.setIcon(iMinus);
+        this.T2Button.setIcon(iPlus2);
+        this.F2Button.setIcon(iMinus2);
+        this.NButton.setIcon(iZero);
     }
 
     public void actionPerformed(ActionEvent e){
@@ -118,11 +151,14 @@ class Labeler extends JFrame implements ActionListener, Runnable{
         if(this.isFinish){
             System.exit(0);
         }
-        if(obj == this.TButton){
+        if(obj == this.playButton){
+            this.playThread.start();
+            this.isInput = true;
+        }
+        else if(obj == this.TButton){
             if(isInput){
                 if(isPlaying){
-                    ImageIcon iMinus = new ImageIcon("img/minus.png");
-                    this.FButton.setIcon(iMinus);
+                    this.iconReset();
                     ImageIcon iPlusC = new ImageIcon("img/plus_clear.png");
                     this.TButton.setIcon(iPlusC);
                     this.labelNum = 1;
@@ -134,18 +170,58 @@ class Labeler extends JFrame implements ActionListener, Runnable{
                     }
                 }
             }
-        }else if(obj == this.againButton){
-            this.playThread.start();
-            this.isInput = true;
         }else if(obj == this.FButton){
             if(isInput){
                 if(isPlaying){
-                    this.labelNum = 0;
-                    ImageIcon iPlus = new ImageIcon("img/plus.png");
-                    this.TButton.setIcon(iPlus);
+                    this.iconReset();
                     ImageIcon iMinusC = new ImageIcon("img/minus_clear.png");
                     this.FButton.setIcon(iMinusC);
-
+                    this.labelNum = -1;
+                }else{
+                    this.send(this.outputPath, this.pathList[this.fileCnt], -1);
+                    if(!this.isFinish){
+                        this.fileName.setText(String.valueOf(this.pathList[this.fileCnt]).replace("databox\\", ""));
+                        this.playThread.start();
+                    }
+                }
+            }
+        }else if(obj == this.T2Button){
+            if(isInput){
+                if(isPlaying){
+                    this.iconReset();
+                    ImageIcon iPlusC = new ImageIcon("img/plus2_clear.png");
+                    this.T2Button.setIcon(iPlusC);
+                    this.labelNum = 2;
+                }else{
+                    this.send(this.outputPath, this.pathList[this.fileCnt], 2);
+                    if(!this.isFinish){
+                        this.fileName.setText(String.valueOf(this.pathList[this.fileCnt]).replace("databox\\", ""));
+                        this.playThread.start();
+                    }
+                }
+            }
+        }else if(obj == this.F2Button){
+            if(isInput){
+                if(isPlaying){
+                    this.iconReset();
+                    ImageIcon iMinusC = new ImageIcon("img/minus2_clear.png");
+                    this.F2Button.setIcon(iMinusC);
+                    this.labelNum = -2;
+                }else{
+                    this.send(this.outputPath, this.pathList[this.fileCnt], -2);
+                    if(!this.isFinish){
+                        this.fileName.setText(String.valueOf(this.pathList[this.fileCnt]).replace("databox\\", ""));
+                        this.playThread.start();
+                    }
+                }
+            }
+        }else if(obj == this.NButton){
+            if(isInput){
+                if(isPlaying){
+                    this.iconReset();
+                    ImageIcon iZero = new ImageIcon("img/0_clear.png");
+                    this.NButton.setIcon(iZero);
+                    this.labelNum = 0;
                 }else{
                     this.send(this.outputPath, this.pathList[this.fileCnt], 0);
                     if(!this.isFinish){
@@ -161,7 +237,7 @@ class Labeler extends JFrame implements ActionListener, Runnable{
     public void run(){
         this.isPlaying = true;
         ImageIcon iPlan = new ImageIcon("img/planaria.png");
-        this.againButton.setIcon(iPlan);
+        this.playButton.setIcon(iPlan);
         this.play(this.pathList[this.fileCnt]);
         if(this.labelNum != -1){
             this.send(this.outputPath, this.pathList[this.fileCnt], this.labelNum);
@@ -169,12 +245,12 @@ class Labeler extends JFrame implements ActionListener, Runnable{
                 this.fileName.setText(String.valueOf(this.pathList[this.fileCnt]).replace("databox\\", ""));
                 this.labelNum = -1;
                 ImageIcon iPlay = new ImageIcon("img/play.png");
-                this.againButton.setIcon(iPlay);
+                this.playButton.setIcon(iPlay);
             }
             this.isInput = false;
         }else{
             ImageIcon iAgain = new ImageIcon("img/again.png");
-            this.againButton.setIcon(iAgain);
+            this.playButton.setIcon(iAgain);
         }
         this.isPlaying = false;
         this.playThread = new Thread(this);
@@ -184,12 +260,20 @@ class Labeler extends JFrame implements ActionListener, Runnable{
         if(this.fileCnt >= this.pathList.length){
             this.fileName.setText("<html>Labeling is now complete.<br>Thank you for your cooperation!");
             this.fileName.setFont(new Font("Century", Font.ITALIC, 20));
-            ImageIcon io = new ImageIcon("img/o.png");
-            this.FButton.setIcon(io);
-            ImageIcon iwa = new ImageIcon("img/wa.png");
-            this.againButton.setIcon(iwa);
+            ImageIcon ikuma = new ImageIcon("img/kuma.png");
+            ImageIcon ia = new ImageIcon("img/a.png");
             ImageIcon iri = new ImageIcon("img/ri.png");
-            this.TButton.setIcon(iri);
+            ImageIcon iga = new ImageIcon("img/ga.png");
+            ImageIcon ito = new ImageIcon("img/to.png");
+            ImageIcon iu = new ImageIcon("img/u.png");
+
+            this.playButton.setIcon(ikuma);
+
+            this.F2Button.setIcon(ia);
+            this.FButton.setIcon(iri);
+            this.NButton.setIcon(iga);
+            this.TButton.setIcon(ito);
+            this.T2Button.setIcon(iu);
 
             this.isFinish = true;
         }
@@ -223,10 +307,7 @@ class Labeler extends JFrame implements ActionListener, Runnable{
     private void send(String csvPath, File wavPath, int num){
         this.toCsv(csvPath, wavPath, num);
         this.writeLog();
-        ImageIcon iPlus = new ImageIcon("img/plus.png");
-        this.TButton.setIcon(iPlus);
-        ImageIcon iMinus = new ImageIcon("img/minus.png");
-        this.FButton.setIcon(iMinus);
+        this.iconReset();
 
         this.fileCnt += 1;
         this.finCheck();
